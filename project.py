@@ -19,71 +19,162 @@ used_device_df['ram'].fillna(used_device_df['ram'].mean(), inplace = True)
 used_device_df['battery'].fillna(used_device_df['battery'].mean(), inplace = True)
 used_device_df['weight'].fillna(used_device_df['weight'].mean(), inplace = True)
 
-st.header('Used phone analysis')
-st.subheader('Subtitle to prepapare')
+st.title('Used device price prediction')
+''' In the digital age we live in, mobile phones have become an essential tool. The rapid and constant technological advancements have led to the continuous introduction in
+the market of new devices, such as smartphones, tablets, smartwhatches, smart tvs and other. As a result, the used industry\
+has become increasingly relevant, offering a more affordable option for those looking to own a quality device at a lower price.
 
-st.write('Short explanation to do')
+ Choosing a price for a used device may be a complex task, that\'s why for my programming project I decided to prepare a statistical analysis on predicting
+the normalized price of a used device. To estimate the normalized price of a used phone. To achieve this, I decided to create a linear regression model for which I chose the
+most influent variables through forward selection. The statistical analysis will be based on a dataset made of 3454 samples (devices) and 15
+variables that includes detailed information about used phones, such as technical specifications and design features.'''
 
 url = 'https://www.kaggle.com/datasets/ahsan81/used-handheld-device-data?resource=download'
 
-st.write('Where to find the dataset: [link to kaggle](' +url+')')
+st.write('The dataset I used can be found on the following link: [link to kaggle](' +url+')')
 
-if st.sidebar.checkbox('Show raw data'):
-    st.write('Raw data:')
-    st.write(used_device_df)
+'''The variables provided by the dataset were
 
-col_3, col_4, col_5 = st.columns(3)
-with col_4:
-    used_device_df["4g"] = used_device_df["4g"].replace({"yes": 1, "no": 0})
-    used_device_df["5g"] = used_device_df["5g"].replace({"yes": 1, "no": 0})
-    diag = np.triu(np.ones_like(used_device_df.corr()))
-    fig = plt.figure(figsize = (9, 9))
-    sns.heatmap(used_device_df.corr(), annot = True, mask=diag)
-    st.write(fig)
+- **device_brand**, the name of manufacturing brand;
+'''
+fig = plt.figure(figsize=(5,6))
+plt.title('Brands of devices')
+used_device_df['device_brand'].value_counts().sort_index(ascending = False).plot(kind = 'barh', color = "coral")
+plt.xlabel('Number of the devices')
+plt.ylabel('Brands')
+st.write(fig)
+'''
+- **os**, the operating system on which the device runs;
+'''
+fig = plt.figure(figsize=(8,8))
+values = used_device_df['os'].value_counts()
+labels = ['Android', 'Others', 'Windows', 'iOS']
+colors = ['#8EB897','#DD7596', '#B7C3F3', '#4F6272']
+explode = (0, .2, .2, .2)
+plt.pie(values, labels = labels, colors = colors, autopct = '%.2f%%', explode = explode, pctdistance= 0.8)
+plt.title('Operative systems of the devices')
+st.write(fig)
+'''
+
+- **screen_size**, the size of the screen in cm;
+'''
+fig = plt.figure()
+ax = used_device_df['screen_size'].value_counts().sort_index().plot(kind = 'bar', color = "darkturquoise")   
+ax.set_xticks(np.linspace(0, 140, 8))  
+plt.title('Screen size of the devices')
+plt.xlabel('cm')
+plt.ylabel('Number of devices')
+plt.show()
+st.write(fig)
+'''
+Probably in the dataset there are more smartphones than tablets.
+- **4g**, a string declaring whether 4G is available or not;
+- **5g**, a string declaring whether 5G is available or not;
+'''
+col_1, col_2 = st.columns(2)
+with col_1:
+    fig1, ax = plt.subplots(figsize=(10,10))
+    used_device_df['4g'].value_counts().sort_index().plot(kind='bar', color = "pink", ax = ax)
+    ax.set_xlabel('Presence of the 4G')
+    ax.set_ylabel('Number of devices')
+
+    st.pyplot(fig1)
+with col_2:
+    fig2, ax = plt.subplots(figsize=(10,10))
+    used_device_df['5g'].value_counts().sort_index().plot(kind='bar', color = "pink", ax = ax)
+    ax.set_xlabel('Presence of the 5G')
+    ax.set_ylabel('Number of devices')
+
+    st.pyplot(fig2)
 
 
-st.code('''
-remaining_variables = list(x_train.columns.values)
-variables = []
-RSS_list = [np.inf]
-RSStest_list = []
-variables_list = dict()
+yes13 = len(used_device_df[(used_device_df['4g']=='yes') & (used_device_df['release_year']==2013)])
+no13 = len(used_device_df[(used_device_df['4g']=='no') & (used_device_df['release_year']==2013)])
 
-for i in range(1,13):
-    best_RSS = np.inf
-    
-    for comb in combinations(remaining_variables,1):
+yes14 = len(used_device_df[(used_device_df['4g']=='yes') & (used_device_df['release_year']==2014)])
+no14 = len(used_device_df[(used_device_df['4g']=='no') & (used_device_df['release_year']==2014)])
 
-            result = linear_reg(x_train[list(comb) + variables],y_train)
-            RSStest = RSS_test(result[1], x_test[list(comb) + variables], y_test)  
-            if result[0] < best_RSS:
-                best_RSS = result[0]
-                related_rss = RSStest
-                best_feature = comb[0]
+yes15 = len(used_device_df[(used_device_df['4g']=='yes') & (used_device_df['release_year']==2015)])
+no15 = len(used_device_df[(used_device_df['4g']=='no') & (used_device_df['release_year']==2015)])
 
-    #Updating variables for next loop
-    variables.append(best_feature)
-    remaining_variables.remove(best_feature)
-    
-    #Saving values for plotting
-    RSS_list.append(best_RSS)
-    RSStest_list.append(related_rss)
-    variables_list[i] = variables.copy() 
-    
-RSS_list.remove(RSS_list[0])
-listt = list(variables_list.values()) 
-num_variables = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
-forward_selection = pd.DataFrame({'num_variables': num_variables,'Variables': listt,'RSS_training': RSS_list,'RSS_test': RSStest_list})
-''')
+yes16 = len(used_device_df[(used_device_df['4g']=='yes') & (used_device_df['release_year']==2016)])
+no16 = len(used_device_df[(used_device_df['4g']=='no') & (used_device_df['release_year']==2016)])
+
+yes17 = len(used_device_df[(used_device_df['4g']=='yes') & (used_device_df['release_year']==2017)])
+no17 = len(used_device_df[(used_device_df['4g']=='no') & (used_device_df['release_year']==2017)])
+
+yes18 = len(used_device_df[(used_device_df['4g']=='yes') & (used_device_df['release_year']==2018)])
+no18 = len(used_device_df[(used_device_df['4g']=='no') & (used_device_df['release_year']==2018)])
+
+yes19 = len(used_device_df[(used_device_df['4g']=='yes') & (used_device_df['release_year']==2019)])
+no19 = len(used_device_df[(used_device_df['4g']=='no') & (used_device_df['release_year']==2019)])
+
+yes20 = len(used_device_df[(used_device_df['4g']=='yes') & (used_device_df['release_year']==2020)])
+no20 = len(used_device_df[(used_device_df['4g']=='no') & (used_device_df['release_year']==2020)])
+
+years_df = pd.DataFrame({
+    'Years': ['2013', '2014', '2015', '2016', '2017', '2018', '2019', '2020'],
+    'Yes': [yes13, yes14, yes15, yes16, yes17, yes18, yes19, yes20],
+    'No': [no13, no14, no15, no16, no17, no18, no19, no20]
+})
+fig4 = plt.figure(figsize=(5,5))
+years_df.plot(kind="bar", x="Years", y=["Yes", "No"])
+st.write(fig4)
+'''
+- **rear_camera_mp**, the resolution of the rear camera in megapixels;
+- **front_camera_mp**, the resolution of the front camera in megapixels;
+- **internal_memory**, the amount of internal memory (ROM) in GB;
+- **ram**, the amount of RAM in GB;
+- **battery**, the energy capacity of the device battery in mAh;
+- **weight**, the weight of the device in grams;
+- **release_year**, the year when the device model was released;
+- **days_used**, the number of days the used/refurbished device has been used;
+- **normalized_new_price**, the normalized price of a new device of the same model;
+- **normalized_used_price**, the normalized price of the used/refurbished device.
+'''
+if st.checkbox('Show code'):
+    st.write('Forward selection:')
+    st.code('''
+    remaining_variables = list(x_train.columns.values)
+    variables = []
+    RSS_list = [np.inf]
+    RSStest_list = []
+    variables_list = dict()
+
+    for i in range(1,13):
+        best_RSS = np.inf
+        
+        for comb in combinations(remaining_variables,1):
+
+                result = linear_reg(x_train[list(comb) + variables],y_train)
+                RSStest = RSS_test(result[1], x_test[list(comb) + variables], y_test)  
+                if result[0] < best_RSS:
+                    best_RSS = result[0]
+                    related_rss = RSStest
+                    best_feature = comb[0]
+
+        #Updating variables for next loop
+        variables.append(best_feature)
+        remaining_variables.remove(best_feature)
+        
+        #Saving values for plotting
+        RSS_list.append(best_RSS)
+        RSStest_list.append(related_rss)
+        variables_list[i] = variables.copy() 
+        
+    RSS_list.remove(RSS_list[0])
+    listt = list(variables_list.values()) 
+    num_variables = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+    forward_selection = pd.DataFrame({'num_variables': num_variables,'Variables': listt,'RSS_training': RSS_list,'RSS_test': RSStest_list})
+    ''')
 
 #regression model
+used_device_df["4g"] = used_device_df["4g"].replace({"yes": 1, "no": 0})
+used_device_df["5g"] = used_device_df["5g"].replace({"yes": 1, "no": 0})
 train_df, test_df = train_test_split(used_device_df, test_size=0.2)
 y_train = train_df[['used_price']].copy()
 x_train1 = train_df[['new_price','release_year','screen_size','rear_camera_mp','front_camera_mp','weight','ram','4g']].copy()
 reg = LinearRegression().fit(x_train1,y_train)
-coefs = reg.coef_
-coefs = coefs[0]
-
 
 with st.expander("Choose the values to make a prediction"):
     new_price = st.number_input("Price of the new device")
@@ -93,7 +184,7 @@ with st.expander("Choose the values to make a prediction"):
     front_camera_mp = st.number_input("Resolution of the front camera")
     weight = st.number_input("Weight")
     ram = st.number_input("Capacity of the ram memory")
-    fourg = st.text_input("Presence of the 4G technology")
+    fourg = st.number_input("Presence of the 4G technology")
     if new_price <= 0:
         error = " The price must be positive"
         st.error(error)
@@ -116,18 +207,14 @@ with st.expander("Choose the values to make a prediction"):
     if ram <= 0:
         error = " The capacity of the ram must be positive"
         st.error(error)
-
-    if st.button("Predict") and new_price >0 and release_year > 0 or a == 0 and screen_size > 0 and rear_camera_mp > 0 and front_camera_mp > 0 and weight > 0 and ram > 0:
+    if fourg != 1 or fourg != 0:
+        error = "The 4G must have a boolean value"
+        st.error(error)
+    if st.button("Predict") and new_price >0 and release_year > 0 or a == 0 and screen_size > 0 and rear_camera_mp > 0 and front_camera_mp > 0 and weight > 0 and ram > 0 and (fourg == 0 or fourg == 1):
         with st.spinner('Computing (=...'):
-            if fourg == 'yes' or fourg == 'y':
-                fourg = 1
-            if fourg == 'no':
-                fourg = 0
             x = np.array([[new_price, release_year, screen_size, rear_camera_mp, front_camera_mp, weight, ram, fourg]])
             y = reg.predict(x)
             st.write("The normalized price for a used device will be:")
-            #st.write(f"If you consider all the variables: {prediction}")
-            #st.write(f"If you only consider the model of 8 variables: {prediction}")
             st.write(y)
 
 x_train2 = train_df.drop(['used_price', 'device_brand','os'], axis=1)
