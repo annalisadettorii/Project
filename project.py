@@ -35,7 +35,7 @@ st.write('The dataset I used can be found on the following link: [link to kaggle
 
 '''The variables provided by the dataset were
 
-- **device_brand**, the name of manufacturing brand;
+- **device_brand**, the name of manufacturing brand
 '''
 fig = plt.figure(figsize=(5,6))
 plt.title('Brands of devices')
@@ -44,7 +44,8 @@ plt.xlabel('Number of the devices')
 plt.ylabel('Brands')
 st.write(fig)
 '''
-- **os**, the operating system on which the device runs;
+The most sold brands result to be Samsung and Huawei.
+- **os**, the operating system on which the device runs
 '''
 fig = plt.figure(figsize=(8,8))
 values = used_device_df['os'].value_counts()
@@ -55,8 +56,8 @@ plt.pie(values, labels = labels, colors = colors, autopct = '%.2f%%', explode = 
 plt.title('Operative systems of the devices')
 st.write(fig)
 '''
-
-- **screen_size**, the size of the screen in cm;
+The most present operative system is Android.
+- **screen_size**, the size of the screen in cm
 '''
 fig = plt.figure()
 ax = used_device_df['screen_size'].value_counts().sort_index().plot(kind = 'bar', color = "darkturquoise")   
@@ -67,7 +68,7 @@ plt.ylabel('Number of devices')
 plt.show()
 st.write(fig)
 '''
-Probably in the dataset there are more smartphones than tablets.
+Probably in the dataset there are more smartphones than tablets, because there is a Gaussian distribuition on the left with a long tail on the right where the devices are much bigger.
 - **4g**, a string declaring whether 4G is available or not;
 - **5g**, a string declaring whether 5G is available or not;
 '''
@@ -86,10 +87,13 @@ with col_2:
     ax.set_ylabel('Number of devices')
 
     st.pyplot(fig2)
-
+'''From this barplot we can see that more than $ 2\over{3} $ of the devices presented the 4g technologies, whereas the 5g technologies 
+is present in less than 500 devices as it should be if we consider the fact that is a recent introducted technology.'''
 pic = "year4g.png"
 st.image(pic, caption='Presence of the 4G technology grouped by year')
 '''
+As I expected, the number of released devices with 4g is every year smaller and from 2016 the number is very small. 
+These devices may probably be "dumb-phones" and some tablets.
 - **rear_camera_mp**, the resolution of the rear camera in megapixels;
 - **front_camera_mp**, the resolution of the front camera in megapixels;
 - **internal_memory**, the amount of internal memory (ROM) in GB;
@@ -112,6 +116,14 @@ with col_2:
     ax1.title.set_text('Amount of the RAM')
     st.pyplot(fig2)
 '''
+I decided to highlight on the graph regarding the internal memory the most common measures that can be found and this seems also a 
+good choice if we consider the fact that most of the devices has a internal memory with a power of 2.
+
+If we for instance would like to consider the devices with a capacity
+memory different from a power of $2$, we obtain devices that have the $75\%$ of the screen between $5cm$ and $7cm$,
+the major part doesn't have 4G connection and none of these has 5G, the maximum quality of the rear cameras is 5mpx,
+many devices don't have a frontal camera and the $75\%$ have an amount of RAM memory under $0,14 GB$
+
 - **battery**, the energy capacity of the device battery in mAh;
 - **weight**, the weight of the device in grams;
 - **release_year**, the year when the device model was released;
@@ -124,6 +136,7 @@ plt.ylabel('Year')
 st.write(fig)
 
 '''
+Not so many devices were released in 2020 probably due to the pandemics.
 - **days_used**, the number of days the used/refurbished device has been used;
 - **normalized_new_price**, the normalized price of a new device of the same model;
 - **normalized_used_price**, the normalized price of the used/refurbished device.
@@ -131,11 +144,22 @@ st.write(fig)
 if st.checkbox('Show code'):
     st.write('Forward selection:')
     st.code('''
-    remaining_variables = list(x_train.columns.values)
-    variables = []
-    RSS_list = [np.inf]
-    RSStest_list = []
-    variables_list = dict()
+    def linear_reg(X,Y): #function to prepare the R_squared and the RSSs
+        model_k = LinearRegression(fit_intercept = True).fit(X,Y)
+        RSS = mean_squared_error(Y,model_k.predict(X)) * len(Y)
+        return RSS, model_k
+
+
+    def RSS_test(model, X1, Y1): #function to test on the test set
+        yhat = model.predict(X1)
+        RSS_tested = ((yhat - Y1) ** 2).sum() 
+        RSS_tested = RSS_tested[0]
+        return RSS_tested
+        remaining_variables = list(x_train.columns.values)
+        variables = []
+        RSS_list = [np.inf]
+        RSStest_list = []
+        variables_list = dict()
 
     for i in range(1,13):
         best_RSS = np.inf
@@ -167,20 +191,19 @@ if st.checkbox('Show code'):
 #regression model
 used_device_df["4g"] = used_device_df["4g"].replace({"yes": 1, "no": 0})
 used_device_df["5g"] = used_device_df["5g"].replace({"yes": 1, "no": 0})
-train_df, test_df = train_test_split(used_device_df, test_size=0.2)
+train_df, test_df = train_test_split(used_device_df, test_size=0.2, random_state = 22)
 y_train = train_df[['used_price']].copy()
-x_train1 = train_df[['new_price','release_year','screen_size','rear_camera_mp','front_camera_mp','weight','ram','4g']].copy()
+x_train1 = train_df[['new_price','release_year','screen_size','rear_camera_mp','front_camera_mp','weight','ram']].copy()
 reg = LinearRegression().fit(x_train1,y_train)
 
 with st.expander("Choose the values to make a prediction"):
-    new_price = st.number_input("Price of the new device")
-    release_year = st.number_input("Release year")
-    screen_size = st.number_input("Dimension of the screen")
-    rear_camera_mp = st.number_input("Resolution of the rear camera")
-    front_camera_mp = st.number_input("Resolution of the front camera")
-    weight = st.number_input("Weight")
-    ram = st.number_input("Capacity of the ram memory")
-    fourg = st.number_input("Presence of the 4G technology")
+    new_price = st.number_input("Price of the new device:")
+    release_year = st.number_input("Release year:")
+    screen_size = st.number_input("Dimension of the screen:")
+    rear_camera_mp = st.number_input("Resolution of the rear camera:")
+    front_camera_mp = st.number_input("Resolution of the front camera:")
+    weight = st.number_input("Weight:")
+    ram = st.number_input("Capacity of the ram memory:")
     if new_price <= 0:
         error = " The price must be positive"
         st.error(error)
@@ -203,14 +226,9 @@ with st.expander("Choose the values to make a prediction"):
     if ram <= 0:
         error = " The capacity of the ram must be positive"
         st.error(error)
-    if fourg != 1 or fourg != 0:
-        error = "The 4G must have a boolean value"
-        st.error(error)
-    if st.button("Predict") and new_price >0 and release_year > 0 or a == 0 and screen_size > 0 and rear_camera_mp > 0 and front_camera_mp > 0 and weight > 0 and ram > 0 and (fourg == 0 or fourg == 1):
+    if st.button("Predict") and new_price >0 and release_year > 0 or a == 0 and screen_size > 0 and rear_camera_mp > 0 and front_camera_mp > 0 and weight > 0 and ram > 0 :
         with st.spinner('Computing (=...'):
-            x = np.array([[new_price, release_year, screen_size, rear_camera_mp, front_camera_mp, weight, ram, fourg]])
+            x = np.array([[new_price, release_year, screen_size, rear_camera_mp, front_camera_mp, weight, ram]])
             y = reg.predict(x)
             st.write("The normalized price for a used device will be:")
             st.write(y)
-
-x_train2 = train_df.drop(['used_price', 'device_brand','os'], axis=1)
