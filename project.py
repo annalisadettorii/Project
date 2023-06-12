@@ -20,8 +20,8 @@ used_device_df['battery'].fillna(used_device_df['battery'].mean(), inplace = Tru
 used_device_df['weight'].fillna(used_device_df['weight'].mean(), inplace = True)
 
 st.title('Used device price prediction')
-''' In the digital age we live in, mobile phones have become an essential tool. The rapid and constant technological advancements have led to the continuous introduction in
-the market of new devices, such as smartphones, tablets, smartwhatches, smart tvs and other. As a result, the used industry\
+''' In the digital age we live in, personal devices have become an essential tool. The rapid and constant technological advancements have led to the continuous introduction in
+the market of new devices, such as smartphones, tablets, smartwhatches, smart tvs and other. As a result, the used industry \
 has become increasingly relevant, offering a more affordable option for those looking to own a quality device at a lower price.
 
  Choosing a price for a used device may be a complex task, that\'s why for my programming project I decided to prepare a statistical analysis on predicting
@@ -60,7 +60,7 @@ st.write(fig)
 '''
 fig = plt.figure()
 ax = used_device_df['screen_size'].value_counts().sort_index().plot(kind = 'bar', color = "darkturquoise")   
-ax.set_xticks(np.linspace(0, 140, 8))  
+ax.set_xticks(ax.get_xticks()[::20]) 
 plt.title('Screen size of the devices')
 plt.xlabel('cm')
 plt.ylabel('Number of devices')
@@ -87,47 +87,43 @@ with col_2:
 
     st.pyplot(fig2)
 
-
-yes13 = len(used_device_df[(used_device_df['4g']=='yes') & (used_device_df['release_year']==2013)])
-no13 = len(used_device_df[(used_device_df['4g']=='no') & (used_device_df['release_year']==2013)])
-
-yes14 = len(used_device_df[(used_device_df['4g']=='yes') & (used_device_df['release_year']==2014)])
-no14 = len(used_device_df[(used_device_df['4g']=='no') & (used_device_df['release_year']==2014)])
-
-yes15 = len(used_device_df[(used_device_df['4g']=='yes') & (used_device_df['release_year']==2015)])
-no15 = len(used_device_df[(used_device_df['4g']=='no') & (used_device_df['release_year']==2015)])
-
-yes16 = len(used_device_df[(used_device_df['4g']=='yes') & (used_device_df['release_year']==2016)])
-no16 = len(used_device_df[(used_device_df['4g']=='no') & (used_device_df['release_year']==2016)])
-
-yes17 = len(used_device_df[(used_device_df['4g']=='yes') & (used_device_df['release_year']==2017)])
-no17 = len(used_device_df[(used_device_df['4g']=='no') & (used_device_df['release_year']==2017)])
-
-yes18 = len(used_device_df[(used_device_df['4g']=='yes') & (used_device_df['release_year']==2018)])
-no18 = len(used_device_df[(used_device_df['4g']=='no') & (used_device_df['release_year']==2018)])
-
-yes19 = len(used_device_df[(used_device_df['4g']=='yes') & (used_device_df['release_year']==2019)])
-no19 = len(used_device_df[(used_device_df['4g']=='no') & (used_device_df['release_year']==2019)])
-
-yes20 = len(used_device_df[(used_device_df['4g']=='yes') & (used_device_df['release_year']==2020)])
-no20 = len(used_device_df[(used_device_df['4g']=='no') & (used_device_df['release_year']==2020)])
-
-years_df = pd.DataFrame({
-    'Years': ['2013', '2014', '2015', '2016', '2017', '2018', '2019', '2020'],
-    'Yes': [yes13, yes14, yes15, yes16, yes17, yes18, yes19, yes20],
-    'No': [no13, no14, no15, no16, no17, no18, no19, no20]
-})
-fig4 = plt.figure(figsize=(5,5))
-years_df.plot(kind="bar", x="Years", y=["Yes", "No"])
-st.write(fig4)
+pic = "year4g.png"
+st.image(pic, caption='Presence of the 4G technology grouped by year')
 '''
 - **rear_camera_mp**, the resolution of the rear camera in megapixels;
 - **front_camera_mp**, the resolution of the front camera in megapixels;
 - **internal_memory**, the amount of internal memory (ROM) in GB;
 - **ram**, the amount of RAM in GB;
+'''
+col_1, col_2 = st.columns(2)
+with col_1:
+    fig1, ax = plt.subplots(figsize=(10,10))
+    my_colors = ['b','b','b','b','b','r','r','r','b','r','b','r','r','r','r','r']
+    ax0 = used_device_df['internal_memory'].value_counts().sort_index().plot(kind = 'bar', ax = ax, color = my_colors)
+    ax.set_xlabel('GB')
+    ax.set_ylabel('Number of devices')
+    ax0.title.set_text('Amount of the internal memory')
+    st.pyplot(fig1)
+with col_2:
+    fig2, ax = plt.subplots(figsize=(10,10))
+    ax1 = used_device_df['ram'].value_counts().sort_index().plot(kind = 'bar', ax = ax, color = 'red')
+    ax.set_xlabel('GB')
+    ax.set_ylabel('Number of devices')
+    ax1.title.set_text('Amount of the RAM')
+    st.pyplot(fig2)
+'''
 - **battery**, the energy capacity of the device battery in mAh;
 - **weight**, the weight of the device in grams;
 - **release_year**, the year when the device model was released;
+'''
+fig = plt.figure(figsize=(7,7))
+plt.title('Release year of the devices')
+used_device_df['release_year'].value_counts().sort_index().plot(kind='barh', color = "coral")
+plt.xlabel('Number of devices')
+plt.ylabel('Year')
+st.write(fig)
+
+'''
 - **days_used**, the number of days the used/refurbished device has been used;
 - **normalized_new_price**, the normalized price of a new device of the same model;
 - **normalized_used_price**, the normalized price of the used/refurbished device.
