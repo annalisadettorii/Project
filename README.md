@@ -20,3 +20,6 @@ Choosing a price for a used device may be a complex task, that\'s why for my pro
 - **days_used** is the number of days the used/refurbished device has been used;
 - **normalized_new_price** is the normalized price of a new device of the same model;
 - **normalized_used_price** is the normalized price of the used/refurbished device.
+
+
+At the end I decided not to take in account every variable, but just the ones that explains better the model and helps to avoid overfitting.
