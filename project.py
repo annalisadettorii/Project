@@ -245,9 +245,10 @@ if st.checkbox('Show code'):
         RSS_tested = ((yhat - Y1) ** 2).sum() 
         RSS_tested = RSS_tested[0]
         return RSS_tested
+
         remaining_variables = list(x_train.columns.values)
         variables = []
-        RSS_list = [np.inf]
+        RSS_list = [np.inf] #at the begginning the first RSS is always acceptable
         RSStest_list = []
         variables_list = dict()
 
@@ -258,7 +259,7 @@ if st.checkbox('Show code'):
 
                 result = linear_reg(x_train[list(comb) + variables],y_train)
                 RSStest = RSS_test(result[1], x_test[list(comb) + variables], y_test)  
-                if result[0] < best_RSS: #choosig the smallest RSS
+                if result[0] < best_RSS: #choosing the smallest RSS
                     best_RSS = result[0]
                     related_rss = RSStest
                     best_feature = comb[0]
@@ -291,7 +292,7 @@ def RSS_test(model, X1, Y1): #function to test on the test set
     return RSS_tested
 remaining_variables = list(x_train.columns.values)
 variables = []
-RSS_list = [np.inf]
+RSS_list = [np.inf] #at the begginning the first RSS is always acceptable
 RSStest_list = []
 variables_list = dict()
 
@@ -302,7 +303,7 @@ for i in range(1,13):
 
             result = linear_reg(x_train[list(comb) + variables],y_train)
             RSStest = RSS_test(result[1], x_test[list(comb) + variables], y_test)  
-            if result[0] < best_RSS:
+            if result[0] < best_RSS: #choosing the smallest RSS
                 best_RSS = result[0]
                 related_rss = RSStest
                 best_feature = comb[0]
